@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Curso NR-35 - Trabalho em Altura</title>
+
+<!-- PWA META TAGS -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a237e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NR-35">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1010/1010041.png">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--pri:#1a237e;--pri-l:#3949ab;--pri-d:#0d1642;
+--acc:#ff6f00;--acc-l:#ffa040;
+--ok:#2e7d32;--err:#c62828;--warn:#f9a825;
+--bg:#f4f6f8;--card:#fff;--txt:#212121;--txt2:#757575;
+--brd:#e0e0e0;--sh:0 2px 12px rgba(0,0,0,.08);
+--r:12px;--tr:all .3s ease;
+}
+
+/* Otimizações Mobile/PWA */
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;min-height:100vh;display:flex;flex-direction:column;
+  overscroll-behavior-y: none; /* Evita o "puxar para atualizar" do browser */
+  -webkit-tap-highlight-color: transparent; /* Tira o fundo azul ao clicar no mobile */
+  padding-top: env(safe-area-inset-top); /* Protege contra o Notch do iPhone */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+button, label.olbl { -webkit-user-select: none; user-select: none; }
+
+a{color:var(--pri-l);text-decoration:none}
+button{cursor:pointer;border:none;font-family:inherit;font-size:1rem;transition:var(--tr)}
+input,select{font-family:inherit;font-size:1rem;padding:.7rem 1rem;border:2px solid var(--brd);border-radius:8px;width:100%;transition:var(--tr);outline:none;background:#fff}
+input:focus{border-color:var(--pri-l);box-shadow:0 0 0 3px rgba(57,73,171,.12)}
+.hidden{display:none!important}
+h1{font-size:1.7rem}h2{font-size:1.4rem}h3{font-size:1.15rem}
+
+/* Install Banner */
+.install-banner { background: var(--acc); color: #fff; padding: .8rem; text-align: center; border-radius: var(--r); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--sh); font-weight: 600; cursor: pointer; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+
+/* Header */
+.hdr{background:linear-gradient(135deg,var(--pri),var(--pri-l));color:#fff;padding:.8rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hdr .logo{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.1rem}
+.hdr .uinfo{display:flex;align-items:center;gap:.8rem;font-size:.85rem}
+.hdr .lvl{background:var(--acc);padding:.2rem .6rem;border-radius:16px;font-weight:700;font-size:.75rem}
+.hdr .xbar{width:80px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden}
+.hdr .xbar div{height:100%;background:var(--acc);border-radius:3px;transition:width .6s}
+.hdr .out{background:rgba(255,255,255,.12);color:#fff;padding:.35rem .7rem;border-radius:6px;font-size:.8rem}
+
+/* Layout */
+.wrap{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:1.5rem}
+.ftr{background:var(--pri-d);color:rgba(255,255,255,.8);text-align:center;padding:1.2rem;font-size:.78rem;line-height:1.7}
+.ftr strong{color:var(--acc-l)}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:1.8rem;margin-bottom:1.5rem}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.4rem;border-radius:8px;font-weight:600;transition:var(--tr);justify-content:center}
+.bp{background:var(--pri);color:#fff}.ba{background:var(--acc);color:#fff}.bs{background:var(--ok);color:#fff}.bo{background:transparent;border:2px solid var(--pri);color:var(--pri)}
+.blg{padding:1rem 2rem;font-size:1.05rem}.bbl{width:100%;display:flex}
+
+/* Auth screens */
+.auth-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--pri-d),var(--pri),var(--pri-l));padding:1rem}
+.auth-card{background:#fff;border-radius:16px;padding:2.5rem;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.fg{margin-bottom:1.1rem}.fg label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.88rem}.fg .err{color:var(--err);font-size:.78rem;margin-top:.2rem;display:none}
+.fg input.inv{border-color:var(--err)}.fg input.inv~.err{display:block}
+
+/* Dashboard & Modules */
+.greet{text-align:center;padding:1rem 0 2rem}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem}
+.scard{background:var(--card);border-radius:var(--r);padding:1.2rem;text-align:center;box-shadow:var(--sh);border-top:4px solid var(--pri)}
+.scard .sv{font-size:1.8rem;font-weight:800;color:var(--pri)}.scard .sl{color:var(--txt2);font-size:.8rem}
+.scard.a{border-top-color:var(--acc)}.scard.a .sv{color:var(--acc)}.scard.s{border-top-color:var(--ok)}.scard.s .sv{color:var(--ok)}
+.pbar{background:var(--brd);height:20px;border-radius:10px;overflow:hidden}.pbar .fill{height:100%;background:linear-gradient(90deg,var(--pri),var(--acc));color:#fff;font-weight:700;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:width .8s}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem}
+.mc{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;cursor:pointer;position:relative}
+.mc.lock{opacity:.5;pointer-events:none}.mc.lock::after{content:'🔒';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:2rem}
+.mc.done{border:2px solid var(--ok)}
+.mc .top{height:6px;width:100%}.mc .body{padding:1.2rem}
+
+/* Content Formatting */
+.cnt h2{color:var(--pri);margin:1.5rem 0 .8rem;display:flex;align-items:center;gap:.4rem}
+.cnt h3{color:var(--pri-l);margin:1.3rem 0 .6rem;border-left:4px solid var(--acc);padding-left:.7rem}
+.hi{background:linear-gradient(135deg,#e3f2fd,#e8eaf6);border-left:4px solid var(--pri);padding:1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.wa{background:#fff3e0;border-left:4px solid var(--acc);padding:1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.da{background:#fce4ec;border-left:4px solid var(--err);padding:1rem;border-radius:0 8px 8px 0;margin:1.2rem 0}
+.def{background:#f5f5f5;padding:.8rem;border-radius:8px;margin:.4rem 0}
+
+/* Tabs & Quiz */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--brd);margin-bottom:1.2rem;overflow-x:auto}
+.tbtn{padding:.6rem 1.2rem;background:none;color:var(--txt2);font-weight:600;border-bottom:3px solid transparent;font-size:.9rem}
+.tbtn.on{color:var(--pri);border-bottom-color:var(--pri)}
+.qcon{max-width:800px;margin:0 auto}
+.olist{list-style:none}.olbl{display:flex;align-items:center;gap:.6rem;padding:1rem;border:2px solid var(--brd);border-radius:8px;cursor:pointer;margin-bottom:.6rem}
+.olbl input{display:none}.olbl .rd{width:22px;height:22px;border:2px solid var(--brd);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.olbl input:checked~.rd{border-color:var(--pri);background:var(--pri)}.olbl input:checked~.rd::after{content:'';width:8px;height:8px;background:#fff;border-radius:50%}
+.olbl.ok{border-color:var(--ok);background:#e8f5e9}.olbl.no{border-color:var(--err);background:#fce4ec}
+.fb{padding:.8rem;border-radius:8px;margin-top:.8rem;font-weight:600}.fb.ok{background:#e8f5e9;color:var(--ok)}.fb.no{background:#fce4ec;color:var(--err)}
+
+/* Results & Badges & Cert */
+.scir{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-size:2.2rem;font-weight:800;color:#fff}
+.scir.pass{background:linear-gradient(135deg,var(--ok),#43a047)}.scir.fail{background:linear-gradient(135deg,var(--err),#e53935)}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.8rem}
+.bi{text-align:center;padding:.8rem;border-radius:var(--r);background:var(--card);box-shadow:var(--sh)}.bi.on{border:2px solid var(--acc)}.bi.off{opacity:.35;filter:grayscale(1)}
+.cert{background:#fff;border:6px double var(--pri);padding:2.5rem;text-align:center;max-width:700px;margin:0 auto;border-radius:4px}
+.crit-badge{background:var(--err);color:#fff;font-size:.65rem;padding:.15rem .5rem;border-radius:4px;font-weight:700;margin-left:.5rem;vertical-align:middle}
+
+.xpp{position:fixed;top:70px;right:16px;background:var(--acc);color:#fff;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;z-index:200;box-shadow:0 4px 20px rgba(255,111,0,.35);animation:slideIn .4s ease}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+.anim{animation:fadeIn .4s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){.wrap{padding:.8rem}.auth-card{padding:1.5rem}.mgrid{grid-template-columns:1fr}}
+@media print{.hdr,.ftr,.btn,.tabs,.tbtn{display:none!important}.cert{border:4px double #000}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+// ==========================================
+// REGISTRO DO SERVICE WORKER (Para PWA / Offline)
+// ==========================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('PWA: Service Worker Registrado'))
+      .catch(err => console.log('PWA: Falha ao registrar', err));
+  });
+}
+
+// ==========================================
+// APLICATIVO PRINCIPAL
+// ==========================================
+const A={
+s:{user:null,view:'auth',authMode:'login',mod:null,qs:null, deferredPrompt:null},
+
+sv(k,d){localStorage.setItem('nr35_'+k,JSON.stringify(d))},
+ld(k){try{return JSON.parse(localStorage.getItem('nr35_'+k))}catch{return null}},
+ldAll(){try{return JSON.parse(localStorage.getItem('nr35_users'))||{}}catch{return{}}},
+svAll(d){localStorage.setItem('nr35_users',JSON.stringify(d))},
+
+greet(){const h=new Date().getHours();if(h>=5&&h<12)return{t:'Bom dia',e:'☀️'};if(h>=12&&h<18)return{t:'Boa tarde',e:'🌤️'};return{t:'Boa noite',e:'🌙'}},
+vCPF(c){c=c.replace(/\D/g,'');if(c.length!==11||/^(\d)\1+$/.test(c))return false;let s=0,r;for(let i=1;i<=9;i++)s+=parseInt(c[i-1])*(11-i);r=(s*10)%11;if(r>=10)r=0;if(r!==parseInt(c[9]))return false;s=0;for(let i=1;i<=10;i++)s+=parseInt(c[i-1])*(12-i);r=(s*10)%11;if(r>=10)r=0;return r===parseInt(c[10])},
+fCPF(v){v=v.replace(/\D/g,'').slice(0,11);if(v.length>9)return v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');if(v.length>6)return v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');if(v.length>3)return v.replace(/(\d{3})(\d{1,3})/,'$1.$2');return v},
+vEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)},
+vAge(d){const b=new Date(d),n=new Date();let a=n.getFullYear()-b.getFullYear();const m=n.getMonth()-b.getMonth();if(m<0||(m===0&&n.getDate()<b.getDate()))a--;return a>=16},
+
+lvl(xp){
+const L=[[5500,'Guardião da Altura',10,'#ff6f00'],[4500,'Especialista NR-35',9,'#e65100'],[3500,'Mestre em Segurança',8,'#2e7d32'],[2700,'Profissional Sênior',7,'#1b5e20'],[2000,'Praticante Avançado',6,'#1565c0'],[1400,'Conhecedor',5,'#0d47a1'],[900,'Intermediário',4,'#4527a0'],[500,'Aprendiz II',3,'#6a1b9a'],[200,'Aprendiz',2,'#ad1457']];
+for(const[x,n,num,c]of L)if(xp>=x)return{n,num,c};return{n:'Iniciante',num:1,c:'#757575'}},
+nxtXP(xp){for(const t of[200,500,900,1400,2000,2700,3500,4500,5500])if(xp<t)return t;return 5500},
+addXP(n){if(!this.s.user)return;const ol=this.lvl(this.s.user.xp).num;this.s.user.xp+=n;this.saveUser();const nl=this.lvl(this.s.user.xp).num;this.xpPop(n,nl>ol)},
+xpPop(n,lu){const e=document.querySelector('.xpp');if(e)e.remove();const d=document.createElement('div');d.className='xpp';d.textContent=`+${n} XP`+(lu?' 🎉 NÍVEL ACIMA!':'');document.body.appendChild(d);setTimeout(()=>d.remove(),2500)},
+saveUser(){const users=this.ldAll();users[this.s.user.cpf]=this.s.user;this.svAll(users);this.sv('lastCPF',this.s.user.cpf)},
+
+badges(){const u=this.s.user;if(!u)return[];const cm=(u.cm||[]).length;return[
+{i:'👣',n:'Primeiro Passo',d:'Cadastro feito',on:true},{i:'📖',n:'Primeira Lição',d:'1 módulo',on:cm>=1},
+{i:'🏔️',n:'Meio Caminho',d:'5 módulos',on:cm>=5},{i:'🏆',n:'Curso Completo',d:'10 módulos',on:cm>=10},
+{i:'💯',n:'Nota Máxima',d:'100% no quiz',on:u.pq||false},{i:'⭐',n:'500 XP',d:'XP > 500',on:u.xp>=500},
+{i:'🌟',n:'2000 XP',d:'XP > 2000',on:u.xp>=2000},{i:'🎓',n:'Certificado',d:'Passou no exame',on:u.ep||false},
+{i:'🔥',n:'Estudioso',d:'3 mods seguidos',on:cm>=3},{i:'🛡️',n:'Guardião',d:'4000 XP',on:u.xp>=4000}]},
+
+mods:[
+{id:1,t:'Fundamentos da NR-35',d:'Objetivo, aplicação e base legal.',xp:400,c:'#1a237e',ic:'📋',ct(){return`<h2>📋 Fundamentos da NR-35</h2><p>A NR-35 estabelece requisitos de prevenção para o trabalho em altura.</p><div class="hi"><strong>📌 Trabalho em altura:</strong> Atividade com diferença de nível <strong>acima de 2,0 metros</strong> onde haja <strong>risco de queda</strong>.</div><p>Aplica-se a trabalhadores envolvidos direta ou indiretamente, exceto área rural (Lei 5.889/73).</p>`},qs:[{q:'Trabalho em altura é acima de:',o:['1m','1,5m','2m','3m'],a:2,x:'Acima de 2m do nível inferior.'},{q:'NR-35 se aplica a trabalho rural?',o:['Sim','Não','Depende da altura','Com permissão'],a:1,x:'Não se aplica.'},{q:'Protege quais trabalhadores?',o:['Só em altura','Direta e indiretamente','Só engenheiros','Só chefes'],a:1,x:'Todos.'}]},
+{id:2,t:'Responsabilidades',d:'Obrigações da empresa e trabalhador.',xp:400,c:'#283593',ic:'⚖️',ct(){return`<h2>⚖️ Responsabilidades</h2><p><strong>Organização:</strong> Garantir medidas, fazer AR/PT, avaliar local, treinar, arquivar documentos por <strong>5 anos</strong> e suspender trabalho se risco não previsto.</p><div class="da"><strong>🔴 Direito de Recusa:</strong> O trabalhador DEVE interromper atividade se constatar <strong>risco grave e iminente</strong>.</div>`},qs:[{q:'Documentos devem ser arquivados por:',o:['1 ano','3 anos','5 anos','10 anos'],a:2,x:'Mínimo 5 anos.'},{q:'Se há risco grave e iminente, o trabalhador deve:',o:['Trabalhar rápido','Recusar a tarefa','Gritar','Ignorar'],a:1,x:'Exercer direito de recusa.'},{q:'Suspender trabalho sob risco não previsto é dever:',o:['Do funcionário','Da Organização','Do Bombeiro','Da Prefeitura'],a:1,x:'Dever do empregador/organização.'}]},
+{id:3,t:'Capacitação e Aptidão',d:'Treinamentos, exames e autorização.',xp:450,c:'#1565c0',ic:'🎓',ct(){return`<h2>🎓 Capacitação e Aptidão</h2><div class="hi"><strong>Autorizado = Capacitado + Apto (ASO) + Autorização Formal</strong></div><p><strong>Treinamento Inicial:</strong> Mín. 8 horas.<br><strong>Periódico:</strong> A cada 2 anos (8 horas).<br><strong>Eventual:</strong> Se ficar afastado > 90 dias ou mudar de empresa/processo.</p>`},qs:[{q:'Treinamento inicial exige carga de:',o:['4h','6h','8h','16h'],a:2,x:'Mínimo 8 horas.'},{q:'Treinamento periódico é a cada:',o:['6 meses','1 ano','2 anos','3 anos'],a:2,x:'A cada 2 anos.'},{q:'Apto para altura fica registrado no:',o:['RG','ASO','CTPS','Contrato'],a:1,x:'Atestado de Saúde Ocupacional.'}]},
+{id:4,t:'Planejamento, AR e PT',d:'Hierarquia de proteção e documentação.',xp:500,c:'#0d47a1',ic:'📐',ct(){return`<h2>📐 Planejamento, AR e PT</h2><div class="hi"><strong>Hierarquia:</strong> 1º EVITAR, 2º ELIMINAR risco (coletiva), 3º MINIMIZAR (individual).</div><p><strong>AR (Análise de Risco):</strong> Obrigatória para TUDO.<br><strong>PT (Permissão de Trabalho):</strong> Para atividades <strong>não rotineiras</strong>. Validade: um turno/jornada.</p>`},qs:[{q:'1º passo da hierarquia:',o:['EPI','Guarda-corpo','Evitar trabalho em altura','Rezar'],a:2,x:'Sempre tentar evitar primeiro.'},{q:'PT é obrigatória para:',o:['Rotineiras','Não rotineiras','Todas','Nenhuma'],a:1,x:'Atividades não rotineiras.'},{q:'Validade da PT:',o:['30 dias','Turno/Jornada','1 semana','Eterna'],a:1,x:'Restrita ao turno ou jornada.'}]},
+{id:5,t:'Sistemas de Proteção (SPQ)',d:'SPCQ, SPIQ, cinto, talabarte.',xp:600,c:'#4527a0',ic:'🛡️',ct(){return`<h2>🛡️ Sistemas de Proteção (SPQ)</h2><p><strong>SPCQ (Coletivo):</strong> Guarda-corpo, redes. Prioritário.<br><strong>SPIQ (Individual):</strong> Cinto + Talabarte + Ancoragem.</p><div class="da"><strong>Impacto Máx:</strong> 6 kN.<br><strong>Talabarte retenção:</strong> Obrigatório absorvedor de energia integrado. Proibido nós e conexão em série.</div>`},qs:[{q:'Força máx de impacto no corpo:',o:['3 kN','6 kN','9 kN','12 kN'],a:1,x:'Máximo 6 kN.'},{q:'EPI obrigatório para retenção:',o:['Cinto abdominal','Cinturão paraquedista','Colete','Capacete'],a:1,x:'Cinturão tipo paraquedista.'},{q:'Talabarte para retenção requer:',o:['Corrente','Absorvedor de energia integrado','Nó cego','Amortecedor de mola'],a:1,x:'Absorvedor integrado.'}]},
+{id:6,t:'Fator de Queda e ZLQ',d:'Cálculos, ancoragens e física da queda.',xp:550,c:'#6a1b9a',ic:'📊',ct(){return`<h2>📊 Fator de Queda e ZLQ</h2><p><strong>Fator de Queda = Distância de queda / Comprimento do equipamento</strong>. Quanto menor, melhor (ideal: fator 0).<br><strong>ZLQ (Zona Livre):</strong> Espaço mínimo abaixo para não bater no chão.</p><p>Ancoragem: Tipo A (fixa), B (transportável), C (linha flexível), D (linha rígida).</p>`},qs:[{q:'ZLQ é:',o:['Área vip','Espaço para não colidir após queda','Zona de vento','Zero Local'],a:1,x:'Espaço livre para evitar colisão.'},{q:'Fator de queda é:',o:['Peso/Altura','Distância/Comprimento EPI','Idade/Força','Zero'],a:1,x:'Distância da queda dividida pelo tamanho do talabarte/corda.'},{q:'Ancoragem linha flexível é Tipo:',o:['A','B','C','D'],a:2,x:'Tipo C.'}]},
+{id:7,t:'Emergência e Suspensão',d:'Resgate e perigos da suspensão inerte.',xp:500,c:'#b71c1c',ic:'🚨',ct(){return`<h2>🚨 Emergência e Suspensão Inerte</h2><div class="da"><strong>Suspensão Inerte:</strong> Ficar pendurado no cinto inconsciente. O sangue para nas pernas, pode causar trombose e <strong>ÓBITO RÁPIDO</strong>.</div><p>O plano de resgate foca em reduzir esse tempo. Equipe deve ser capacitada para resgate e primeiros socorros.</p>`},qs:[{q:'Suspensão inerte causa:',o:['Cãibra leve','Trombose e risco de morte','Sono','Nada'],a:1,x:'Compressão venosa severa, risco letal rápido.'},{q:'Objetivo do resgate:',o:['Anotar fatos','Reduzir tempo de suspensão','Esperar o chefe','Multar'],a:1,x:'Tirar a pessoa da suspensão o mais rápido possível.'},{q:'Equipe de resgate deve saber:',o:['Inglês','Primeiros socorros e resgate','Cantar','Cozinhar'],a:1,x:'Essencial ter capacitação física, mental e de APH.'}]},
+{id:8,t:'Acesso por Cordas',d:'Regras específicas da Anexo I.',xp:550,c:'#e65100',ic:'🧗',ct(){return`<h2>🧗 Acesso por Cordas</h2><div class="hi"><strong>Regra de Ouro:</strong> Pelo menos <strong>2 cordas independentes</strong>.</div><p>Trabalhadores devem ser certificados (N1, N2, N3). Validade 3 anos. Inspeção de cordas: cada 6 meses.</p><div class="wa"><strong>Vento > 40 km/h:</strong> Parar o trabalho.</div>`},qs:[{q:'Quantas cordas no mínimo?',o:['1','2 independentes','3','4'],a:1,x:'Mínimo 2 cordas (trabalho e segurança).'},{q:'Vento que interrompe o serviço:',o:['20km/h','30km/h','> 40km/h','100km/h'],a:2,x:'Acima de 40 km/h paralisa.'},{q:'Inspeção periódica da corda:',o:['3 meses','6 meses','12 meses','2 anos'],a:1,x:'A cada 6 meses.'}]},
+{id:9,t:'Escadas',d:'Anexo III: Escadas individuais.',xp:400,c:'#2e7d32',ic:'🪜',ct(){return`<h2>🪜 Escadas de Uso Individual</h2><p>Uso para <strong>pequeno porte e acesso temporário</strong>.<br>Sempre manter <strong>3 pontos de contato</strong>.</p><p>Tamanho máx encosto: 7m.<br>Escada fixa > 10m exige plataforma a cada 6m.<br>Ultrapassar o piso em 1m.</p>`},qs:[{q:'Pontos de contato na escada:',o:['1','2','3','4'],a:2,x:'2 mãos e 1 pé ou 2 pés e 1 mão.'},{q:'Plataforma em escada fixa >10m a cada:',o:['3m','6m','10m','Nunca'],a:1,x:'A cada 6 metros.'},{q:'Passar o nível do piso em no mín:',o:['0.5m','1m','1.5m','2m'],a:1,x:'No mínimo 1 metro.'}]},
+{id:10,t:'Revisão Final',d:'Resumo dos prazos e conceitos.',xp:350,c:'#37474f',ic:'📚',ct(){return`<h2>📚 Revisão Final</h2><ul><li>Alt: >2m</li><li>Impacto: máx 6kN</li><li>Treino: 8h a cada 2 anos</li><li>Arq: 5 anos</li><li>PT: turno/jornada</li><li>ZLQ: não bater no chão</li></ul>`},qs:[{q:'Altura NR-35:',o:['>1m','>1.5m','>2m','>3m'],a:2,x:'>2m'},{q:'Treino a cada:',o:['1 ano','2 anos','3 anos','5 anos'],a:1,x:'2 anos'},{q:'Arquivo por:',o:['1 ano','3 anos','5 anos','10 anos'],a:2,x:'5 anos'}]}
+],
+
+exam:[
+{q:'Trabalho em altura (NR-35) ocorre acima de:',o:['1m','1,5m','2m','3m'],a:2,crit:true},{q:'Força máxima de impacto permitida no trabalhador é:',o:['3kN','6kN','9kN','12kN'],a:1,crit:true},
+{q:'EPI obrigatório para retenção de queda:',o:['Abdominal','Paraquedista','Colete','Capacete'],a:1,crit:true},{q:'No acesso por cordas, o mínimo de cordas conectadas é:',o:['1','2 independentes','3','4'],a:1,crit:true},
+{q:'Suspensão inerte pode causar:',o:['Cãibra','Trombose e óbito rápido','Surdez','Dor lombar'],a:1,crit:true},{q:'Sobre o SPIQ, o trabalhador deve estar conectado:',o:['Só na subida','Todo tempo exposto ao risco','Quando quiser','Se chover'],a:1,crit:true},
+{q:'Primeira medida da hierarquia de controle:',o:['EPI','EPC','Evitar trabalho em altura','Treinar'],a:2,crit:true},{q:'Talabarte para retenção deve ser:',o:['Simples','Com absorvedor integrado','Corrente','Corda fina'],a:1,crit:true},
+{q:'Inspeção rotineira do SPIQ é feita:',o:['Antes de iniciar trabalhos','Mensal','Anual','Semestral'],a:0,crit:true},{q:'Direito de recusa é exercido quando:',o:['Cansaço','Risco grave e iminente','Falta de EPI limpo','Nublado'],a:1,crit:true},
+{q:'Carga horária treinamento inicial:',o:['4h','6h','8h','16h'],a:2},{q:'Treinamento periódico ocorre a cada:',o:['1 ano','2 anos','3 anos','4 anos'],a:1},
+{q:'Arquivo de documentos, mínimo:',o:['2 anos','3 anos','5 anos','10 anos'],a:2},{q:'PT obrigatória para atividades:',o:['Rotineiras','Não rotineiras','Todas','Nenhuma'],a:1},
+{q:'Validade da PT:',o:['30 dias','Turno/Jornada','Eterna','1 ano'],a:1},{q:'Situação que impede o serviço por risco é chamada de condição:',o:['Física','Impeditiva','Climática','Restritiva'],a:1},
+{q:'Tamanho máximo escada de encosto:',o:['5m','7m','9m','10m'],a:1},{q:'Pontos de contato na escada:',o:['1','2','3','4'],a:2},
+{q:'Plataforma em escada fixa vertical a cada:',o:['3m','6m','9m','Não precisa'],a:1},{q:'SPCQ é:',o:['Sistema Proteção Coletiva Contra Quedas','Seguro Pessoal','Sistema Prático','Sem Proteção'],a:0},
+{q:'Vento que para acesso por cordas:',o:['>20km/h','>30km/h','>40km/h','>60km/h'],a:2},{q:'Validade certificado acesso cordas:',o:['1 ano','2 anos','3 anos','5 anos'],a:2},
+{q:'Equipe mín acesso cordas:',o:['1','2','3','4'],a:1},{q:'Fator de queda = :',o:['Queda / Altura','Distância / Equipamento','Peso / Mola','Tempo / Força'],a:1},
+{q:'Ancoragem B é:',o:['Fixa','Transportável','Cabo flexível','Trilho'],a:1},{q:'Ancoragem D é:',o:['Fixa','Móvel','Linha flexível','Linha rígida'],a:3},
+{q:'Inspeção periódica de ancoragem (máx):',o:['3m','6m','12m','24m'],a:2},{q:'Ancoragem permanente precisa de:',o:['Projeto PLH','Nada','Apenas foto','Manual'],a:0},
+{q:'Autorizado = capacitado + apto + :',o:['Força','Autorização formal','Amizade','Idade'],a:1},{q:'ASO é:',o:['Atestado de Saúde Ocupacional','Aviso Serviço','Ato Simples','Análise Sistêmica'],a:0},
+{q:'Avaliação de saúde avalia fator:',o:['Ósseo','Psicossocial','Genético','Cor'],a:1},{q:'Quem seleciona o SPQ?',o:['Profissional habilitado em segurança','Operário','Chefia de RH','Comprador'],a:0},
+{q:'SPIQ restrição serve para:',o:['Parar queda','Impedir alcance a zona de risco','Descansar','Escalar'],a:1},{q:'Proibido no talabarte:',o:['Nós/Laços','Ajuste','Limpeza','Inspeção visual'],a:0},
+{q:'Inspeção inicial é feita:',o:['No fim','Antes do 1º uso','Após 1 ano','Na fábrica'],a:1},{q:'Elemento do SPIQ que sofreu impacto:',o:['Reusa','Descarta','Lava','Conserta sempre'],a:1},
+{q:'Supervisão pode ser:',o:['Só presencial','Presencial, semipresencial, remota','Só remota','Não exige'],a:1},{q:'AR rotineira fica no:',o:['RH','Procedimento Operacional','SESMT apenas','Diretoria'],a:1},
+{q:'Escada de abrir (fechada) máx:',o:['4m','6m','8m','10m'],a:1},{q:'Passar nível do piso na escada em:',o:['0.5m','1m','1.5m','2m'],a:1},
+{q:'Inspeção cordas acesso (máx):',o:['3 meses','6 meses','12 meses','2 anos'],a:1},{q:'Profissional Nível 3 corda requer:',o:['Nenhuma exp','36m como N2+3000h','Apenas prova teórica','Só pagar taxa'],a:1},
+{q:'Talabarte em série:',o:['Proibido regra geral','Obrigatório','Recomendado','Opcional'],a:0},{q:'Treino eventual se afastado por >:',o:['30d','60d','90d','120d'],a:2},
+{q:'SPCQ projetado por:',o:['Qualquer um','PLH','Vendedor','Chefe'],a:1},{q:'Pós-queda risco grave:',o:['Frio','Suspensão inerte','Fome','Sol'],a:1},
+{q:'NR-35 publicada em:',o:['2010','2011','2012','2015'],a:2},{q:'Largura escada vertical:',o:['0.3 a 0.5m','0.4 a 0.6m','0.5 a 0.8m','>1m'],a:1},
+{q:'Fabricante EPI deve dar info de:',o:['Cor','Desempenho e limite de massa','Embalagem','Garantia total'],a:1},{q:'Tempo estimado de resgate:',o:['Da ocorrência até estabilização','Tempo de treino','Validade do EPI','Ida ao hospital'],a:0}
+],
+
+// ============ RENDER ENGINE ============
+R(){
+const r=document.getElementById('app');
+const v=this.s.view;
+if(v==='auth'){r.innerHTML=this.rAuth();this.bnd();return}
+r.innerHTML=this.rHdr()+'<div class="wrap anim">'+
+(v==='dash'?this.rDash():v==='mod'?this.rMod():v==='quiz'?this.rQuiz(false):v==='res'?this.rRes():v==='exam'?this.rQuiz(true):v==='eres'?this.rERes():v==='cert'?this.rCert():this.rDash())+
+'</div>'+this.rFtr();
+this.bnd()},
+
+rFtr(){return`<footer class="ftr"><p>© ${new Date().getFullYear()} — Curso NR-35: Trabalho em Altura</p><p><strong>Desenvolvido e revisado por Gênesis V Silva</strong> — TST CREA-BA 3000180191</p></footer>`},
+
+rAuth(){
+const g=this.greet();const m=this.s.authMode;
+return`<div class="auth-bg"><div class="auth-card anim">
+<div style="text-align:center;font-size:2.5rem">⛑️</div><h1>Curso NR-35</h1><p class="sub">Trabalho em Altura</p>
+<div style="text-align:center;margin-bottom:1.2rem;padding:.8rem;background:#f5f5f5;border-radius:8px">
+<span style="font-size:1.3rem">${g.e}</span> <b style="color:var(--pri)">${g.t}!</b> ${m==='login'?'Faça login':'Cadastre-se'}</div>
+<div class="tabs" style="border:0;justify-content:center"><button class="tbtn ${m==='login'?'on':''}" onclick="A.s.authMode='login';A.R()">🔑 Entrar</button><button class="tbtn ${m==='register'?'on':''}" onclick="A.s.authMode='register';A.R()">📝 Cadastrar</button></div>
+${m==='login'?this.rLog():this.rReg()}
+<p style="text-align:center;margin-top:1rem;font-size:.7rem;color:var(--txt2)">Gênesis V Silva — CREA-BA 3000180191</p></div></div>`},
+
+rLog(){return`<form id="lForm"><div class="fg"><label>CPF</label><input type="text" id="lC" required></div><button type="submit" class="btn bp bbl">Entrar</button></form>`},
+rReg(){return`<form id="rForm"><div class="fg"><label>Nome</label><input type="text" id="rN" required minlength="5"></div><div class="fg"><label>Nasc.</label><input type="date" id="rD" required></div><div class="fg"><label>CPF</label><input type="text" id="rC" required></div><div class="fg"><label>Email</label><input type="email" id="rE" required></div><button type="submit" class="btn bp bbl">Cadastrar</button></form>`},
+
+rHdr(){const u=this.s.user;const l=this.lvl(u.xp);const p=Math.min(100,u.xp/this.nxtXP(u.xp)*100);
+return`<header class="hdr"><div class="logo">⛑️ NR-35</div><div class="uinfo"><span>${u.name.split(' ')[0]}</span><span class="lvl" style="background:${l.c}">Nv.${l.num}</span><div class="xbar"><div style="width:${p}%"></div></div><span>${u.xp}XP</span><button class="out" onclick="A.logout()">Sair</button></div></header>`},
+
+rDash(){
+const u=this.s.user;const g=this.greet();const cm=(u.cm||[]).length;const p=Math.round(cm/10*100);const ce=cm>=10;const bd=this.badges();
+
+// BOTÃO DE INSTALAÇÃO DO APP NATIVO
+let installBtn = '';
+if (this.s.deferredPrompt) {
+  installBtn = `<div class="install-banner" onclick="A.installApp()">
+    <span>📱 Instalar Aplicativo no Celular</span> <span style="background:#fff;color:var(--acc);padding:4px 8px;border-radius:4px;font-size:.8rem">Instalar</span>
+  </div>`;
+}
+
+return`
+${installBtn}
+<div class="greet"><span class="emoji">${g.e}</span><h2>${g.t}, ${u.name.split(' ')[0]}!</h2><p>Continue aprendendo</p></div>
+<div class="sgrid"><div class="scard"><div class="sv">${u.xp}</div><div class="sl">XP</div></div><div class="scard a"><div class="sv">${cm}/10</div><div class="sl">Módulos</div></div><div class="scard s"><div class="sv">${bd.filter(b=>b.on).length}/10</div><div class="sl">Conquistas</div></div></div>
+<div class="card"><h3>📈 Progresso</h3><div class="pbar"><div class="fill" style="width:${p}%">${p}%</div></div></div>
+<div class="tabs"><button class="tbtn on" onclick="A.sT(this,'tm')">📚 Módulos</button><button class="tbtn" onclick="A.sT(this,'tb')">🏅 Conquistas</button></div>
+<div id="tab-tm"><div class="mgrid">${this.mods.map((m,i)=>{
+const dn=(u.cm||[]).includes(m.id);const lk=i>0&&!(u.cm||[]).includes(this.mods[i-1].id)&&!dn;
+return`<div class="mc ${dn?'done':''} ${lk?'lock':''}" onclick="${!lk?`A.oM(${m.id})`:''}">
+<div class="top" style="background:${m.c}"></div><div class="body"><div class="num">Mod ${m.id}</div><div class="tit">${m.ic} ${m.t}</div>
+<div style="display:flex;justify-content:space-between"><span class="xp">⭐${m.xp}</span><span class="st ${dn?'dn':'av'}">${dn?'✅':lk?'🔒':'▶️'}</span></div></div></div>`}).join('')}</div>
+${ce?`<div class="card" style="text-align:center;margin-top:1.5rem;border:2px solid var(--acc)"><h2>🎓 Exame Final</h2><p>50 questões • <b style="color:var(--err)">10 Críticas (Não pode errar)</b></p><button class="btn ba" onclick="A.sE()">Iniciar Exame</button> ${u.ep?'<button class="btn bs" onclick="A.nav(\'cert\')">📜 Certificado</button>':''}</div>`:''}</div>
+<div id="tab-tb" class="hidden"><div class="bgrid">${bd.map(b=>`<div class="bi ${b.on?'on':'off'}"><div class="ico">${b.i}</div><div class="nm">${b.n}</div></div>`).join('')}</div></div>`},
+
+rMod(){const m=this.mods.find(x=>x.id===this.s.mod);const dn=(this.s.user.cm||[]).includes(m.id);return`
+<p><a href="#" onclick="A.nav('dash');return false">← Voltar</a></p>
+<div class="card"><h2>${m.ic} Módulo ${m.id}: ${m.t}</h2><div class="cnt">${m.ct()}</div><div style="text-align:center;margin-top:1.5rem"><button class="btn ${dn?'bo':'ba'} blg" onclick="A.sQ(${m.id})">${dn?'Refazer':'Iniciar'} Avaliação</button></div></div>`},
+
+rQuiz(isE){
+const qs=this.s.qs;const qArr=isE?this.exam:this.mods.find(m=>m.id===qs.mid).qs;const q=qArr[qs.cur];const an=qs.ans[qs.cur]!=null;const sl=qs.ans[qs.cur];
+return`<div class="qcon"><p><a href="#" onclick="A.nav('dash');return false">← Voltar</a></p>
+<div class="card"><div class="qhdr"><h3>${isE?'🎓 Exame Final':'📝 Avaliação'}</h3><span>${qs.cur+1}/${qArr.length}</span></div><div class="pbar"><div class="fill" style="width:${(qs.cur+1)/qArr.length*100}%"></div></div>
+<div class="qtxt">${qs.cur+1}. ${q.q}${q.crit?'<span class="crit-badge">CRÍTICA</span>':''}</div>
+<ul class="olist">${q.o.map((o,i)=>{let c='';if(an){if(i===q.a)c='ok';else if(i===sl)c='no'}return`<li><label class="olbl ${c}"><input type="radio" name="q" ${an?'disabled':''} ${sl===i?'checked':''} onchange="A.slA(${i})"><span class="rd"></span><span>${o}</span></label></li>`}).join('')}</ul>
+${an?`<div class="fb ${sl===q.a?'ok':'no'}">${sl===q.a?'✅ Correto':'❌ Errou'} ${q.x||''}</div>`:''}
+<div class="qnav"><button class="btn bo" ${qs.cur===0?'disabled':''} onclick="A.pQ()">Anterior</button>${!an?`<button class="btn bp" onclick="A.cA()">Confirmar</button>`:qs.cur<qArr.length-1?`<button class="btn bp" onclick="A.nQ()">Próxima</button>`:`<button class="btn bs" onclick="A.fQ(${isE})">Finalizar</button>`}</div></div></div>`},
+
+rRes(){const qs=this.s.qs;const m=this.mods.find(x=>x.id===qs.mid);const c=qs.ans.filter((a,i)=>a===m.qs[i].a).length;const p=Math.round(c/m.qs.length*100);const ok=p>=70;
+return`<div class="qcon"><div class="rcrd card"><div class="scir ${ok?'pass':'fail'}">${p}%</div><h2>${ok?'Aprovado!':'Reprovado'}</h2><p>${c} de ${m.qs.length}</p><div style="margin-top:1.5rem"><button class="btn bp" onclick="A.nav('dash')">Painel</button></div></div></div>`},
+
+rERes(){const qs=this.s.qs;const q=this.exam;const c=qs.ans.filter((a,i)=>a===q[i].a).length;const p=Math.round(c/q.length*100);
+const cf=q.some((qq,i)=>qq.crit&&qs.ans[i]!==qq.a);const cm=q.filter((qq,i)=>qq.crit&&qs.ans[i]!==qq.a).length;const ok=p>=70&&!cf;
+return`<div class="qcon"><div class="rcrd card"><div class="scir ${ok?'pass':'fail'}">${p}%</div><h2>${ok?'🎓 APROVADO!':'😞 Reprovado'}</h2><p>${c} de 50 questões</p>
+${cf?`<div class="da">❌ Errou ${cm} questões Críticas. Reprovação direta.</div>`:''}
+<div style="margin-top:1.5rem"><button class="btn bp" onclick="A.nav('dash')">Painel</button> ${ok?'<button class="btn bs" onclick="A.nav(\'cert\')">Certificado</button>':''}</div></div></div>`},
+
+rCert(){const u=this.s.user;const d=new Date().toLocaleDateString('pt-BR');return`<p><button class="btn bo" onclick="window.print()">Imprimir</button> <button class="btn bp" onclick="A.nav('dash')">Voltar</button></p>
+<div class="cert"><div style="font-size:3rem">🏅</div><h2>Certificado NR-35</h2><p>Certificamos que</p><h3>${u.name}</h3><p>concluiu o curso NR-35 - Trabalho em Altura com aproveitamento (Item 35.4.2.1).</p><p>${d}</p><b>Gênesis V Silva - TST CREA-BA</b></div>`},
+
+bnd(){
+const l=document.getElementById('lForm');if(l){l.addEventListener('submit',e=>{e.preventDefault();const c=A.fCPF(document.getElementById('lC').value);document.getElementById('lC').value=c;
+const us=this.ldAll();if(us[c.replace(/\D/g,'')]){this.s.user=us[c.replace(/\D/g,'')];this.s.view='dash';this.R()}else{alert('CPF não encontrado')}})}
+const r=document.getElementById('rForm');if(r){r.addEventListener('submit',e=>{e.preventDefault();
+const n=document.getElementById('rN').value,d=document.getElementById('rD').value,c=document.getElementById('rC').value,em=document.getElementById('rE').value;
+if(!this.vCPF(c)){alert('CPF Inválido');return}
+if(!this.vAge(d)){alert('Mínimo 16 anos');return}
+const cl=c.replace(/\D/g,'');const us=this.ldAll();if(us[cl]){alert('CPF já existe. Faça login.');return}
+this.s.user={name:n,dob:d,cpf:cl,email:em,xp:50,cm:[],ep:false};this.saveUser();this.s.view='dash';this.R()})}},
+
+nav(v){this.s.view=v;this.R();window.scrollTo(0,0)},oM(id){this.s.mod=id;this.nav('mod')},sQ(id){this.s.qs={mid:id,cur:0,ans:[]};this.nav('quiz')},sE(){this.s.qs={mid:'exam',cur:0,ans:[]};this.nav('exam')},
+slA(i){this.s.qs.sel=i},cA(){if(this.s.qs.sel==null)return;this.s.qs.ans[this.s.qs.cur]=this.s.qs.sel;delete this.s.qs.sel;this.R()},
+nQ(){this.s.qs.cur++;delete this.s.qs.sel;this.R();window.scrollTo(0,0)},pQ(){if(this.s.qs.cur>0){this.s.qs.cur--;this.R();window.scrollTo(0,0)}},
+fQ(isE){
+if(isE){
+const q=this.exam;const c=this.s.qs.ans.filter((a,i)=>a===q[i].a).length;const p=Math.round(c/50*100);
+const cf=q.some((qq,i)=>qq.crit&&this.s.qs.ans[i]!==qq.a);
+if(p>=70&&!cf){this.s.user.ep=true;this.addXP(1500)}this.saveUser();this.nav('eres');
+}else{
+const m=this.mods.find(x=>x.id===this.s.qs.mid);const c=this.s.qs.ans.filter((a,i)=>a===m.qs[i].a).length;const p=Math.round(c/m.qs.length*100);
+if(p>=70){if(!this.s.user.cm.includes(m.id)){this.s.user.cm.push(m.id);this.addXP(m.xp)}if(p===100){this.s.user.pq=true;this.addXP(100)}this.saveUser()}
+this.nav('res');
+}},
+sT(b,t){document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('[id^="tab-"]').forEach(x=>x.classList.add('hidden'));document.getElementById('tab-'+t).classList.remove('hidden')},
+logout(){if(confirm('Sair?')){this.s.view='auth';this.s.user=null;this.R()}},
+
+installApp() {
+  if(!this.s.deferredPrompt) return;
+  this.s.deferredPrompt.prompt();
+  this.s.deferredPrompt.userChoice.then((choiceResult) => {
+    if (choiceResult.outcome === 'accepted') {
+      this.s.deferredPrompt = null;
+      this.R();
+    }
+  });
+},
+
+init(){
+// Captura o evento de PWA para mostrar botão de instalação
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  this.s.deferredPrompt = e;
+  if(this.s.view === 'dash') this.R();
+});
+
+const us=this.ldAll();const lc=this.ld('lastCPF');
+if(lc&&us[lc]){this.s.user=us[lc];this.s.view='dash'}
+else if(Object.keys(us).length>0)this.s.authMode='login';
+this.R()}
+};
+window.onload=()=>A.init();
+</script>
+</body>
+</html>
