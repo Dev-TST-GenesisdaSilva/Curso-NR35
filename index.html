@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Curso NR-35 - Trabalho em Altura</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#1a237e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NR-35">
+<link rel="apple-touch-icon" href="./icon-512.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -14,7 +20,7 @@
 --brd:#e0e0e0;--sh:0 2px 12px rgba(0,0,0,.08);
 --r:12px;--tr:all .3s ease;
 }
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+body{font-family:overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
 a{color:var(--pri-l);text-decoration:none}
 button{cursor:pointer;border:none;font-family:inherit;font-size:1rem;transition:var(--tr)}
 input,select{font-family:inherit;font-size:1rem;padding:.7rem 1rem;border:2px solid var(--brd);border-radius:8px;width:100%;transition:var(--tr);outline:none}
