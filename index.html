@@ -1115,5 +1115,18 @@ this.R()}
 
 document.addEventListener('DOMContentLoaded',()=>A.init());
 </script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+    .then(r=>console.log('PWA OK'))
+    .catch(e=>console.log('PWA erro',e));
+  });
+}
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  if(typeof A!=='undefined'){A.s.deferredPrompt=e;if(A.s.view==='dash')A.R();}
+});
+</script>
 </body>
 </html>
